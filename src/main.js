@@ -1,26 +1,29 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, screen, ipcMain } = require('electron');
 const path = require('path');
-const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDev = process.env.NODE_ENV === "development";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
 
+let mainWindow;
+
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    webPreferences: {
+      devTools: isDev,
+      nodeIntegration: false, // is default value after Electron v5
+      contextIsolation: true, // protect against prototype pollution
+      enableRemoteModule: false, // turn off remote
+      preload: path.join(__dirname, "preload.js") // use a preload script
+    }
   });
 
+  mainWindow.maximize();
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  // Open the DevTools.
-  if (isDevelopment) {
-    mainWindow.webContents.openDevTools();
-  }
 };
 
 // This method will be called when Electron has finished
@@ -47,3 +50,8 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+ipcMain.on("upload-zip", (event) => {
+  console.log("hii");
+  event.sender.send("zip-uploaded", "ZIP UPLOAD SUCCESS");
+});
