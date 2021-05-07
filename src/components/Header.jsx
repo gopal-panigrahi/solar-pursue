@@ -1,7 +1,7 @@
 import React from 'react'
 import { Navbar, Nav, Form, NavDropdown, FormControl, Button } from 'react-bootstrap';
 
-function Homepage() {
+function Header() {
     return (
         <div>
             <Navbar bg="light" expand="lg">
@@ -9,8 +9,8 @@ function Homepage() {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mr-auto">
-                        <Nav.Link href="#home">Home</Nav.Link>
-                        <Nav.Link href="#link">Link</Nav.Link>
+                        <Nav.Link href="#homepage">Home</Nav.Link>
+                        <Nav.Link href="#result">Link</Nav.Link>
                         <NavDropdown title="Dropdown" id="basic-nav-dropdown">
                             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                             <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
@@ -29,4 +29,4 @@ function Homepage() {
     )
 }
 
-export default Homepage;
+export default Header;
