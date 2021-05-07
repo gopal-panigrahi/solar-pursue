@@ -2,24 +2,20 @@ const {
     contextBridge,
     ipcRenderer
 } = require("electron");
+const Store = require('electron-store');
+const store = new Store();
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld(
     "api", {
-    send: (channel, data) => {
-        // whitelist channels
-        let validChannels = ["toMain", "upload-zip"];
-        if (validChannels.includes(channel)) {
-            ipcRenderer.send(channel, data);
-        }
-    },
-    receive: (channel, func) => {
-        let validChannels = ["fromMain", "zip-uploaded"];
-        if (validChannels.includes(channel)) {
-            // Deliberately strip event as it includes `sender` 
-            ipcRenderer.on(channel, (event, ...args) => func(...args));
-        }
-    }
+    uploadZipFile: () => (
+        ipcRenderer.invoke('upload-zip')
+    ),
+    setBasePath: () => (
+        ipcRenderer.send('set-base-path')
+    ),
+    checkBasePath: () => store.get("isBasePathSet"),
+    getBasePath: () => store.get("basePath")
 }
 );

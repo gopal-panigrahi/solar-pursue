@@ -1,23 +1,42 @@
-const { app, BrowserWindow, screen, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const Store = require('electron-store');
+Store.initRenderer();
+
 const isDev = process.env.NODE_ENV === "development";
+const schema = {
+  isBasePathSet: {
+    type: 'boolean',
+    default: false
+  },
+  basePath: {
+    type: 'string',
+    default: ''
+  }
+};
+const store = new Store({ schema });
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
 
-let mainWindow;
-
 const createWindow = () => {
   // Create the browser window.
-  mainWindow = new BrowserWindow({
+  /*
+    Used while testing base path functionality
+  */
+  // store.set("isBasePathSet", false);
+  // console.log(store.get("basePath"));
+  const mainWindow = new BrowserWindow({
     webPreferences: {
-      devTools: isDev,
+      // devTools: isDev,
       nodeIntegration: false, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
       enableRemoteModule: false, // turn off remote
-      preload: path.join(__dirname, "preload.js") // use a preload script
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY // use a preload script
     }
   });
 
@@ -51,7 +70,64 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-ipcMain.on("upload-zip", (event) => {
-  console.log("hii");
-  event.sender.send("zip-uploaded", "ZIP UPLOAD SUCCESS");
+ipcMain.on("set-base-path", () => {
+  const selectionId = dialog.showMessageBoxSync({
+    message: "Set the Base Path",
+    type: "info",
+    buttons: ["Close App", "Set Path"],
+    defaultId: 1,
+    title: "Crucial Step",
+  });
+
+  if (selectionId) {
+    do {
+      const filePath = dialog.showOpenDialogSync({
+        properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
+      });
+      if (filePath) {
+        store.set("isBasePathSet", true);
+        store.set("basePath", filePath[0]);
+      }
+      else {
+        dialog.showErrorBox("Can't Skip this step", "It is important to set the base path for the app which stores all the files and images in the base path folder");
+      }
+    } while (!store.get("isBasePathSet"));
+  }
+  else {
+    dialog.showErrorBox("Exiting the app", "It is important to set the base path for the app which stores all the files and images in the base path folder");
+    app.quit();
+  }
+});
+
+ipcMain.handle("upload-zip", (event) => {
+  // dialog.showOpenDialog({
+  //   properties: ['openFile'],
+  //   filters: [{ name: 'ZIP', extensions: ['zip'] }]
+  // }).then(function (files) {
+  //   for (let file_path of files.filePaths) {
+
+  //   }
+  //   axios.post("http://127.0.0.1:5000/uploadZip", {
+  //     zippath: files.filePaths[0]
+  //   }).then(
+  //     function (response) {
+  //       //ipcMain.send('uploaded-image-list');
+  //       dialog.showMessageBox({
+  //         message: "Images Uploaded",
+  //         type: "info"
+  //       })
+  //       //mainWindow.loadFile(path.join(__dirname, 'components/imagelist.html'));
+  //       event.sender.send('uploaded-image-list', response.data.img_list);
+  //       // console.log(response.data.img_list[1]);
+  //     }
+  //   ).catch(
+  //     function (error) {
+  //       console.log(error);
+  //     }
+  //   );
+  // }).catch(function (err) {
+  //   console.log(err);
+  // });
+
+  return { "message": "Bhai Bhai", "status": true };
 });

@@ -29,8 +29,4 @@
 import './index.css';
 import './index';
 
-window.api.receive("zip-uploaded", (data) => {
-    console.log(`Received ${data} from main process`);
-});
 
-window.api.send("upload-zip");
