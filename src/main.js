@@ -1,6 +1,7 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const Unzipper = require('adm-zip')
 const Store = require('electron-store');
 Store.initRenderer();
 
@@ -99,35 +100,25 @@ ipcMain.on("set-base-path", () => {
   }
 });
 
-ipcMain.handle("upload-zip", (event) => {
-  // dialog.showOpenDialog({
-  //   properties: ['openFile'],
-  //   filters: [{ name: 'ZIP', extensions: ['zip'] }]
-  // }).then(function (files) {
-  //   for (let file_path of files.filePaths) {
+ipcMain.handle("upload-zip", async (event) => {
+  let unzipped = false;
 
-  //   }
-  //   axios.post("http://127.0.0.1:5000/uploadZip", {
-  //     zippath: files.filePaths[0]
-  //   }).then(
-  //     function (response) {
-  //       //ipcMain.send('uploaded-image-list');
-  //       dialog.showMessageBox({
-  //         message: "Images Uploaded",
-  //         type: "info"
-  //       })
-  //       //mainWindow.loadFile(path.join(__dirname, 'components/imagelist.html'));
-  //       event.sender.send('uploaded-image-list', response.data.img_list);
-  //       // console.log(response.data.img_list[1]);
-  //     }
-  //   ).catch(
-  //     function (error) {
-  //       console.log(error);
-  //     }
-  //   );
-  // }).catch(function (err) {
-  //   console.log(err);
-  // });
+  const files = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [{ name: 'ZIP', extensions: ['zip'] }]
+  });
 
-  return { "message": "Bhai Bhai", "status": true };
+  if (files.canceled) {
+    console.log("Cancelled");
+    unzipped = false;
+  }
+  else {
+    for (let file_path of files.filePaths) {
+      const zip = new Unzipper(file_path);
+      zip.extractAllTo(store.get('basePath'));
+    }
+    console.log(files);
+    unzipped = true;
+  }
+  return { "message": "Bhai Bhai", "status": unzipped };
 });

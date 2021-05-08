@@ -9,12 +9,8 @@ const store = new Store();
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld(
     "api", {
-    uploadZipFile: () => (
-        ipcRenderer.invoke('upload-zip')
-    ),
-    setBasePath: () => (
-        ipcRenderer.send('set-base-path')
-    ),
+    uploadZipFile: () => ipcRenderer.invoke('upload-zip'),
+    setBasePath: () => ipcRenderer.send('set-base-path'),
     checkBasePath: () => store.get("isBasePathSet"),
     getBasePath: () => store.get("basePath")
 }

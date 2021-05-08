@@ -90,6 +90,7 @@
     "style-loader": "^1.2.1"
   },
   "dependencies": {
+    "adm-zip": "^0.5.5",
     "ajv": "^8.2.0",
     "bootstrap": "^4.6.0",
     "electron-squirrel-startup": "^1.0.0",

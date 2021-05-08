@@ -10,8 +10,11 @@ function Homepage() {
         setLoadingZip(true);
         const response = await window.api.uploadZipFile();
         if (response.status) {
-            console.log(response.message);
             history.push("/result");
+        }
+        else {
+            alert("Uploading Files Cancelled");
+            setLoadingZip(false);
         }
     }
 
