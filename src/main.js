@@ -109,7 +109,6 @@ ipcMain.handle("upload-zip", async (event) => {
   });
 
   if (files.canceled) {
-    console.log("Cancelled");
     unzipped = false;
   }
   else {
@@ -117,8 +116,46 @@ ipcMain.handle("upload-zip", async (event) => {
       const zip = new Unzipper(file_path);
       zip.extractAllTo(store.get('basePath'));
     }
-    console.log(files);
     unzipped = true;
   }
-  return { "message": "Bhai Bhai", "status": unzipped };
+  return { "message": "Unzip Successful", "status": unzipped };
+});
+
+function validateFiles(filePath) {
+  fs.readdir(filePath, (err, files) => {
+    files.forEach(file => {
+      path.extname(file)
+    });
+  });
+  return true;
+}
+
+ipcMain.handle("upload-folder", async (event) => {
+  let uploadFolderDone = false;
+
+  const files = await dialog.showOpenDialog({
+    properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
+  });
+  if (files.canceled) {
+    uploadFolderDone = false;
+  }
+  else {
+    const BASE_PATH = store.get('basePath');
+    for (let file_path of files.filePaths) {
+      fs.readdir(file_path, (err, files) => {
+        files.forEach(file => {
+          if (['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'].includes(path.extname(file))) {
+            const source = path.join(file_path, file);
+            const destination = path.join(BASE_PATH, file);
+            fs.copyFile(source, destination, (err) => {
+              if (err) throw err;
+            });
+          }
+        });
+      });
+    }
+    console.log(files);
+    uploadFolderDone = true;
+  }
+  return { "message": "Folder Copied Successfully", "status": uploadFolderDone };
 });

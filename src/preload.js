@@ -10,6 +10,7 @@ const store = new Store();
 contextBridge.exposeInMainWorld(
     "api", {
     uploadZipFile: () => ipcRenderer.invoke('upload-zip'),
+    uploadFolder: () => ipcRenderer.invoke('upload-folder'),
     setBasePath: () => ipcRenderer.send('set-base-path'),
     checkBasePath: () => store.get("isBasePathSet"),
     getBasePath: () => store.get("basePath")
