@@ -10,12 +10,9 @@ function Homepage() {
         event.preventDefault();
         setLoading(true);
         const response = await window.api.uploadZipFile();
-        if (response.status) {
-            history.push("/result");
-        }
-        else {
+        setLoading(false);
+        if (!response.status) {
             alert("Uploading Files Cancelled");
-            setLoading(false);
         }
     }
 
@@ -23,13 +20,23 @@ function Homepage() {
         event.preventDefault();
         setLoading(true);
         const response = await window.api.uploadFolder();
-        if (response.status) {
-            history.push("/result");
-        }
-        else {
+        setLoading(false);
+        if (!response.status) {
             alert("Uploading Folder Cancelled");
-            setLoading(false);
         }
+
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        const regionData = {
+            state: "Maharashtra",
+            district: "Thane",
+            village: "Kalyan",
+            pincode: "421306"
+        };
+        window.api.setRegionInfo(regionData);
+        history.push("/result");
     }
 
     return (
@@ -41,6 +48,7 @@ function Homepage() {
                     <div>
                         < Button href="#result" onClick={handleUploadZip} > Upload ZIP</Button >
                         < Button href="#result" onClick={handleUploadFolder} > Upload Folder</Button >
+                        < Button href="#result" onClick={handleSubmit} > Submit Info </Button >
                     </div >
             }
         </>
