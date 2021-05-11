@@ -14,7 +14,14 @@ const schema = {
   basePath: {
     type: 'string',
     default: ''
-  }
+  },
+  region_info: {
+    type: 'object'
+  },
+  readyForProcessing: {
+    type: 'boolean',
+    default: false
+  },
 };
 const store = new Store({ schema });
 
@@ -23,6 +30,9 @@ const store = new Store({ schema });
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
+
+const BASE_PATH = store.get('basePath');
+const TEMP_DIRECTORY = path.join(store.get('basePath'), '.temp')
 
 const createWindow = () => {
   // Create the browser window.
@@ -71,7 +81,24 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+function setUpTempDirectory() {
+  fs.access(TEMP_DIRECTORY, (error) => {
+    if (error) {
+      fs.mkdir(TEMP_DIRECTORY, { recursive: true }, (error) => {
+        if (error) {
+          console.log(error);
+        } else {
+          return true;
+        }
+      });
+    } else {
+      return true;
+    }
+  });
+}
+
 ipcMain.on("set-base-path", () => {
+  setUpTempDirectory();
   const selectionId = dialog.showMessageBoxSync({
     message: "Set the Base Path",
     type: "info",
@@ -114,24 +141,16 @@ ipcMain.handle("upload-zip", async (event) => {
   else {
     for (let file_path of files.filePaths) {
       const zip = new Unzipper(file_path);
-      zip.extractAllTo(store.get('basePath'));
+      zip.extractAllTo(TEMP_DIRECTORY);
     }
     unzipped = true;
   }
   return { "message": "Unzip Successful", "status": unzipped };
 });
 
-function validateFiles(filePath) {
-  fs.readdir(filePath, (err, files) => {
-    files.forEach(file => {
-      path.extname(file)
-    });
-  });
-  return true;
-}
-
 ipcMain.handle("upload-folder", async (event) => {
   let uploadFolderDone = false;
+  setUpTempDirectory();
 
   const files = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
@@ -140,13 +159,12 @@ ipcMain.handle("upload-folder", async (event) => {
     uploadFolderDone = false;
   }
   else {
-    const BASE_PATH = store.get('basePath');
     for (let file_path of files.filePaths) {
       fs.readdir(file_path, (err, files) => {
         files.forEach(file => {
           if (['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'].includes(path.extname(file))) {
             const source = path.join(file_path, file);
-            const destination = path.join(BASE_PATH, file);
+            const destination = path.join(TEMP_DIRECTORY, file);
             fs.copyFile(source, destination, (err) => {
               if (err) throw err;
             });
@@ -154,8 +172,53 @@ ipcMain.handle("upload-folder", async (event) => {
         });
       });
     }
-    console.log(files);
     uploadFolderDone = true;
   }
   return { "message": "Folder Copied Successfully", "status": uploadFolderDone };
+});
+
+function moveToRegion(source, destination, callback) {
+  fs.rename(source, destination, function (err) {
+    if (err) {
+      if (err.code === 'EXDEV') {
+        copy();
+      } else {
+        callback(err);
+      }
+      return;
+    }
+    callback();
+  });
+
+  function copy() {
+    var readStream = fs.createReadStream(source);
+    var writeStream = fs.createWriteStream(destination);
+
+    readStream.on('error', callback);
+    writeStream.on('error', callback);
+
+    readStream.on('close', function () {
+      fs.unlink(source, callback);
+    });
+
+    readStream.pipe(writeStream);
+  }
+}
+
+ipcMain.on("region-info", (event, regionData) => {
+  store.set("readyForProcessing", false);
+  store.set("region_info", regionData);
+  const CURRENT_REGION_PATH = path.join(BASE_PATH, `${regionData.village}_${regionData.pincode}`);
+  moveToRegion(TEMP_DIRECTORY, CURRENT_REGION_PATH, (err) => {
+    if (err) {
+      if (err.code === "ENOTEMPTY") {
+        dialog.showErrorBox("Same Region Error", "Region Already Exists, Either Change region name or remove the Region Folder from the Base Folder");
+      }
+    }
+    else {
+      store.set("readyForProcessing", true);
+    }
+    console.log(store.get("readyForProcessing"));
+  });
+  store.set("currentRegionPath", CURRENT_REGION_PATH);
 });

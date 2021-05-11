@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld(
     uploadFolder: () => ipcRenderer.invoke('upload-folder'),
     setBasePath: () => ipcRenderer.send('set-base-path'),
     checkBasePath: () => store.get("isBasePathSet"),
-    getBasePath: () => store.get("basePath")
+    getBasePath: () => store.get("basePath"),
+    setRegionInfo: (regionData) => ipcRenderer.send('region-info', regionData)
 }
 );
