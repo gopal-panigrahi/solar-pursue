@@ -11,12 +11,14 @@ import Page from './components/page';
 //import { Col,Row,Container} from 'react-bootstrap';
 import Sample from './components/sample';
 import Sidenav from './components/Sidenav';
+import Uploadpge from './components/uploadpge';
 
 function App() {
   return (
     <>
     {/* <Sample/> */}
-    <Sidenav/>
+    {/* <Sidenav/> */}
+    <Uploadpge/>
     </>
   );
 }

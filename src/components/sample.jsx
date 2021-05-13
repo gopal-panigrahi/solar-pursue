@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Navbar ,Nav,Col, Row, NavDropdown, Jumbotron} from 'react-bootstrap';
+import { Container, Navbar ,Nav,Col, Row, NavDropdown} from 'react-bootstrap';
 
 function Sample() {
     return (
