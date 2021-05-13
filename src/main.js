@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const Unzipper = require('adm-zip')
 const Store = require('electron-store');
-Store.initRenderer();
 
 const isDev = process.env.NODE_ENV === "development";
 const schema = {
@@ -218,7 +217,23 @@ ipcMain.on("region-info", (event, regionData) => {
     else {
       store.set("readyForProcessing", true);
     }
-    console.log(store.get("readyForProcessing"));
   });
   store.set("currentRegionPath", CURRENT_REGION_PATH);
+});
+
+const workingDir = { path: '', imageList: [] };
+function getImageList(currentPath) {
+  if (workingDir.path !== currentPath) {
+    workingDir.path = currentPath;
+    workingDir.imageList = fs.readdirSync(currentPath);
+  }
+  return workingDir.imageList;
+}
+
+ipcMain.handle("get-uploaded-images", (event, start, length = 6) => {
+  const imagesList = getImageList(store.get('currentRegionPath'));
+  const images = imagesList.slice(start, start + length).map((image) => `file://${store.get('currentRegionPath')}/${image}`);
+  const count = start + images.length;
+  const over = imagesList.length === count;
+  return { images: images, count: count, over: over };
 });
