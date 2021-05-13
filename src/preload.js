@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld(
     setBasePath: () => ipcRenderer.send('set-base-path'),
     checkBasePath: () => store.get("isBasePathSet"),
     getBasePath: () => store.get("basePath"),
-    setRegionInfo: (regionData) => ipcRenderer.send('region-info', regionData)
+    setRegionInfo: (regionData) => ipcRenderer.send('region-info', regionData),
+    readyForProcessing: () => store.get("readyForProcessing"),
+    getUploadedImages: async (count) => ipcRenderer.invoke("get-uploaded-images", count)
 }
 );
