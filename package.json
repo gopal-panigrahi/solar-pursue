@@ -20,7 +20,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "name": "solar-pursue"
+        "name": "solar-pursue",
+        "icon": "./src/assets/sun.ico"
       },
       "makers": [
         {
