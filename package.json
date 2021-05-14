@@ -26,15 +26,14 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "solar_pursue",
-            "iconUrl": "./src/assets/sun.ico"
+            "name": "solar_pursue"
           }
         },
         {
           "name": "@electron-forge/maker-zip",
           "platforms": [
             "linux",
-            "win"
+            "win32"
           ]
         },
         {

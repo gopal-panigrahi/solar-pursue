@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+    branches: [ deploy ]
+  pull_request:
+    branches: [ deploy ]
+
+jobs:
+  build_on_linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@master
+      with:
+        node-version: 14.x
+    - name: install dependencies
+      run: yarn install
+    - name: build
+      run: yarn make
+    - name: Deb File
+      uses: actions/upload-artifact@v2
+      with:
+        path: out/make/deb/x64/solar-pursue_1.0.0_amd64.deb
+    - name: RPM File
+      uses: actions/upload-artifact@v2
+      with:
+        path: out/make/rpm/x64/solar-pursue-1.0.0-1.x86_64.rpm
+    - name: ZIP File
+      uses: actions/upload-artifact@v2
+      with:
+        path: out/make/zip/linux/x64/solar-pursue-linux-x64-1.0.0.zip
+  
+  build_on_win:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@master
+      with:
+        node-version: 14.x
+    - name: install dependencies
+      run: yarn install
+    - name: build
+      run: yarn make
+    - name: Window
+      uses: actions/upload-artifact@v2
+      with:
+        path: out/make/
