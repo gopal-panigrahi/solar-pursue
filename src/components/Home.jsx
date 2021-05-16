@@ -1,24 +1,35 @@
 //import logo from './logo.svg';
 //import './App.css';
 // import MyIntro from './components/MyIntro';
+import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container , Row, Col,Card,Button
-
-} from 'react-bootstrap';
-function App() {
+import {Container , Row, Col,Card,Button} from 'react-bootstrap';
+function Home() {
   return (
     <>
-<Container style = {{width : "80rem",height : '4rem', backgroundColor : ' #ADD8E6'}} > 
-    <Row> <header> <h3>Solar Pursue</h3></header></Row>
+{/* <Container style = {{width : "80rem",height : '4rem', backgroundColor : ' #ADD8E6'}} >  */}
+    {/* <Row> <header> <h3>Solar Pursue</h3></header></Row> */}
 
-</Container >
-    
+{/* </Container > */}
+<div>
+        <nav>
+      <div  className ="logo">Solar Pursue</div>
+      <ul className = "nav-links">
+      <Button>Bulk</Button>
+      <Button>cloud</Button>
+      <Button>Single</Button>
+      <Button>About</Button>
+
+      </ul>
+      </nav>
+      </div>
+
 <Container >
   <Row>
     <Col style={{width : '80rem', height : 580, backgroundColor: '	#e6f2ff '}}> 
         <br/><br />
       <Card border="light" style={{ width: '33rem', height : '32rem' }}>
-          <Card.Header><Button className = 'Rounded'> Region Info </Button>  </Card.Header>
+          <Card.Header><button type="button" class="btn  btn-lg btn-primary " disabled style={{width: "20rem"}}>Region Information</button>  </Card.Header>
           <Card.Body>
             
               <Card.Title>Light Card Title</Card.Title>
@@ -31,7 +42,7 @@ function App() {
   <Col style = {{ width : "80rem", height : 580, backgroundColor: '	#e6f2ff'}} > 
     <br/><br />
     <Card border="light" style={{ width: '34rem', height : '32rem' }}>
-        <Card.Header>Instruction</Card.Header>
+        <Card.Header><button type="button" class="btn btn-lg btn-primary" disabled style={{width: "20rem"}}>Instructions</button></Card.Header>
         <Card.Body>
           {/* <Card.Title> </Card.Title> */}
           <Card.Text>
@@ -51,4 +62,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;
