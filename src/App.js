@@ -13,7 +13,8 @@ import './App.css';
 import SideNav from './components/SideNav';
 import Uploadpage from './pages/UploadPage';
 import { Container, Col, Row } from 'react-bootstrap';
-
+//import ControlledCarousel from './components/controlledcarosel';
+import { Carousel ,CarouselItem} from "react-bootstrap";
 function App() {
   return (
     <>
@@ -22,11 +23,14 @@ function App() {
           <Col className='pr-0' md={3} >
             <SideNav />
           </Col>
+         
+          
           <Col >
             <Uploadpage />
           </Col>
         </Row>
-      </Container >
+      </Container > 
+     
     </>
   );
 }
