@@ -1,6 +1,5 @@
 //import logo from './logo.svg';
 //import './App.css';
-// import MyIntro from './components/MyIntro';
 import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container , Row, Col,Card,Button} from 'react-bootstrap';
@@ -12,9 +11,10 @@ function Home() {
 
 {/* </Container > */}
 <div>
-        <nav>
-      <div  className ="logo">Solar Pursue</div>
-      <ul className = "nav-links">
+        <nav style ={{ display : "grid" ,gridTemplateColumns : "50% 50%", alignItems : "center",backgroundColor : "lightblue", align : "center", height : "10vh",}}>
+      {/* <div  className ="logo">Solar Pursue</div> */}
+      <h3>  SOLAR PURSUE</h3> 
+      <ul style={{ display : "flex",justifyContent :"space-around",liststyle : "none",paddingRight: "150px",}}>
       <Button>Bulk</Button>
       <Button>cloud</Button>
       <Button>Single</Button>
