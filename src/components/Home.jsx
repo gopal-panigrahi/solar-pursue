@@ -1,23 +1,9 @@
-//import logo from './logo.svg';
-//import './App.css';
 import React from 'react'
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 
 function Home() {
   return (
     <>
-      {/* <div>
-        <nav style={{ display: "grid", gridTemplateColumns: "50% 50%", alignItems: "center", backgroundColor: "lightblue", align: "center", height: "10vh", }}>
-          <h3>  SOLAR PURSUE</h3>
-          <ul style={{ display: "flex", justifyContent: "space-around", liststyle: "none", paddingRight: "150px", }}>
-            <Button>Bulk</Button>
-            <Button>cloud</Button>
-            <Button>Single</Button>
-            <Button>About</Button>
-          </ul>
-        </nav>
-      </div> */}
-
       <Container className="p-0 m-0" fluid>
         <Row className="p-0 m-0">
           <Col className="p-0 m-0" md style={{ width: '80rem', height: 580, backgroundColor: '	#e6f2ff ' }}>
