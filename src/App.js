@@ -12,25 +12,23 @@ import './App.css';
 // import Sample from './components/sample';
 import SideNav from './components/SideNav';
 import Uploadpage from './pages/UploadPage';
-import { Container, Col, Row } from 'react-bootstrap';
+import { Container, Col, Row, CardGroup } from 'react-bootstrap';
 //import ControlledCarousel from './components/controlledcarosel';
-import { Carousel ,CarouselItem} from "react-bootstrap";
+import { Carousel, CarouselItem } from "react-bootstrap";
 function App() {
   return (
     <>
-      <Container className="m-0 p-0 bg-danger" fluid>
+      <Container className="m-0 p-0" fluid>
         <Row>
-          <Col className='pr-0' md={3} >
+          <Col className='pr-0 bg-dark' md={3} >
             <SideNav />
           </Col>
-         
-          
-          <Col >
+          <Col className="">
             <Uploadpage />
           </Col>
         </Row>
-      </Container > 
-     
+      </Container >
+
     </>
   );
 }
