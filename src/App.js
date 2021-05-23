@@ -1,34 +1,10 @@
 import React from 'react';
 import './App.css';
-// import Homepage from './components/homepage';
-// import Page from './components/page';
-//import Sample from './components/sample';
-//import Homepage from './components/homepage';
-
-//import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-//import sidenav from './components/Sidenav';
-//import Products from './pages/Products';
-//import { Col,Row,Container} from 'react-bootstrap';
-// import Sample from './components/sample';
-import SideNav from './components/SideNav';
-import Uploadpage from './pages/UploadPage';
-import { Container, Col, Row, CardGroup } from 'react-bootstrap';
-//import ControlledCarousel from './components/controlledcarosel';
-import { Carousel, CarouselItem } from "react-bootstrap";
+import ImageProcessing from './pages/ImageProcessing.jsx'
 function App() {
   return (
     <>
-      <Container className="m-0 p-0" fluid>
-        <Row>
-          <Col className='pr-0 bg-dark' md={3} >
-            <SideNav />
-          </Col>
-          <Col className="">
-            <Uploadpage />
-          </Col>
-        </Row>
-      </Container >
-
+      <ImageProcessing />
     </>
   );
 }
