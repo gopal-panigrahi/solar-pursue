@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
-import Home from './components/Home.jsx';
+import ImageProcessing from './pages/ImageProcessing.jsx'
+import Home from './pages/Home.jsx';
 import Header from './components/Header.jsx';
 import { HashRouter, Route } from 'react-router-dom'
 import Switch from 'react-bootstrap/esm/Switch';
@@ -9,13 +10,12 @@ function App() {
     <>
       <HashRouter>
         <Header />
-        <Switch>
+        <Switch className="m-0 p-0">
           <Route exact path="/" component={Home} />
           <Route path="/home" component={Home} />
-          <Route path="/uploadPage" component={UploadPage} />
-          <Route path="/result" component={Result} />
+          <Route path="/uploadPage" component={ImageProcessing} />
+          {/* <Route path="/result" component={Result} /> */}
         </Switch>
-        {/* <Home /> */}
       </HashRouter>
     </>
   );

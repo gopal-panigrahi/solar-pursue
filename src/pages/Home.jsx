@@ -1,17 +1,19 @@
 import React from 'react'
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import RegionInfoForm from './RegionInfoForm';
 
 function Home() {
+
   return (
     <>
       <Container className="p-0 m-0" fluid>
         <Row className="p-0 m-0">
           <Col className="p-0 m-0" md style={{ width: '80rem', height: 580, backgroundColor: '	#e6f2ff ' }}>
-            <Card className="mt-4 mx-auto" border="light" style={{ width: '33rem', height: '32rem' }}>
+            <Card className="mt-4 mx-auto" border="light" style={{ width: '33rem' }}>
               <Card.Header className="text-center"><Button size="lg" block>Region Information</Button></Card.Header>
               <Card.Body>
-                <Card.Title>Light Card Title</Card.Title>
                 <Card.Text>
+                  <RegionInfoForm />
                 </Card.Text>
               </Card.Body>
             </Card>
