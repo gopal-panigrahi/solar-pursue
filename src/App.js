@@ -2,9 +2,8 @@ import React, { useEffect } from 'react';
 import './App.css';
 import Header from './components/Header.jsx';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import Homepage from './components/Homepage.jsx';
-import Result from './components/Result.jsx';
-
+import ImageProcessing from './pages/ImageProcessing.jsx'
+import Home from './pages/Home.jsx';
 function App() {
   useEffect(() => {
     if (!window.api.checkBasePath()) {
@@ -17,10 +16,11 @@ function App() {
     <>
       <HashRouter>
         <Header />
-        <Switch>
-          <Route path="/" exact component={Homepage} />
-          <Route path="/homepage" component={Homepage} />
-          <Route path="/result" component={Result} />
+        <Switch className="m-0 p-0">
+          <Route exact path="/" component={Home} />
+          <Route path="/home" component={Home} />
+          <Route path="/uploadPage" component={ImageProcessing} />
+          {/* <Route path="/result" component={Result} /> */}
         </Switch>
       </HashRouter>
     </>
