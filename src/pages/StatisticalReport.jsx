@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import graphGenerator from '../utilities/day_time'
-import HoursPerDay from '../components/HoursPerDay';
-import HoursPerMonth from '../components/HoursPerMonth';
-import QuaterlyGraph from '../components/QuaterlyGraph';
-
+import graphGenerator from '../utilities/graphGenerator'
+import HoursPerDay from '../components/HoursPerDay.js';
+import HoursPerMonth from '../components/HoursPerMonth.js';
+import QuaterlyGraph from '../components/QuaterlyGraph.js';
+import { Container, Form, Card, Button } from 'react-bootstrap';
+import { AiTwotoneEdit } from 'react-icons/ai';
 
 function StatisticalReport({ resultPresent, result }) {
     const [loading, setLoading] = useState(true);
@@ -11,15 +12,19 @@ function StatisticalReport({ resultPresent, result }) {
     const [hoursPerMonth, setHoursPerMonth] = useState(null);
     const [quaterly, setQuaterly] = useState(null);
 
+    const [disableQuaterlyComment, setDisableQuaterlyComment] = useState(true)
+    const [disableMonthComment, setDisableMonthComment] = useState(true)
+    const [disableDayComment, setDisableDayComment] = useState(true)
 
     useEffect(() => {
-        if (resultPresent) {
-            graphGenerator.evaluate(result);
-            setHoursPerDay(graphGenerator.hoursPerDay());
-            setHoursPerMonth(graphGenerator.hoursPerMonth());
-            setQuaterly(graphGenerator.quaterly());
-            setLoading(false);
-        }
+        // if (resultPresent) {
+        result = [{ imagePath: 'file:///home/others/Workspace/BaseProjectFolder/kalyan_000000/20120707_141149.jpg', label: 'clear' }]
+        graphGenerator.evaluate(result);
+        setHoursPerDay(graphGenerator.hoursPerDay());
+        setHoursPerMonth(graphGenerator.hoursPerMonth());
+        setQuaterly(graphGenerator.quaterly());
+        setLoading(false);
+        // }
     }, [resultPresent, result])
 
     return (
@@ -28,9 +33,26 @@ function StatisticalReport({ resultPresent, result }) {
                 <h1>Loading</h1>
                 :
                 <>
-                    <HoursPerDay labels={hoursPerDay.labels} data={hoursPerDay.data} />
-                    <HoursPerMonth data={hoursPerMonth} />
-                    <QuaterlyGraph data={quaterly} />
+                    <Container>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title className="text-center">Solar Report</Card.Title>
+                                <Card.Subtitle className="mb-2 text-muted text-center">This report contains details of the region kalyan</Card.Subtitle>
+                                <HoursPerDay labels={hoursPerDay.labels} data={hoursPerDay.data} />
+                                <AiTwotoneEdit className='float-right m-1' size='1.5em' onClick={() => setDisableDayComment(!disableDayComment)} />
+                                <Form.Control as="textarea" rows={5} disabled={disableDayComment} placeholder='Click on Edit Icon to Add Comments' />
+                                <HoursPerMonth data={hoursPerMonth} />
+                                <AiTwotoneEdit className='float-right m-1' size='1.5em' onClick={() => setDisableMonthComment(!disableMonthComment)} />
+                                <Form.Control as="textarea" rows={5} disabled={disableMonthComment} placeholder='Click on Edit Icon to Add Comments' />
+                                <QuaterlyGraph data={quaterly} />
+                                <AiTwotoneEdit className='float-right m-1' size='1.5em' onClick={() => setDisableQuaterlyComment(!disableQuaterlyComment)} />
+                                <Form.Control as="textarea" rows={5} disabled={disableQuaterlyComment} placeholder='Click on Edit Icon to Add Comments' />
+                                <div className='d-flex justify-content-center'>
+                                    <Button className="my-3">Print</Button>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Container>
                 </>
         }
         </>

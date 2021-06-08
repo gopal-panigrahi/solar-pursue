@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pie } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 
 function QuaterlyGraph({ data }) {
     const state = {
@@ -7,41 +7,40 @@ function QuaterlyGraph({ data }) {
             'October-December'],
         datasets: [
             {
-                label: 'Rainfall',
+                data: data,
                 backgroundColor: [
-                    '#B21F00',
-                    '#C9DE00',
-                    '#2FDE00',
-                    '#00A6B4'
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
                 ],
                 hoverBackgroundColor: [
-                    '#501800',
-                    '#4B5000',
-                    '#175000',
-                    '#003350'
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(153, 102, 255, 1)',
                 ],
-                data: data//[65, 59, 80, 81]
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                borderWidth: 1
             }
         ]
     }
     return (
-        <>
-            <Pie
+        <div className='w-50 mx-auto my-4'>
+            <Doughnut
                 data={state}
                 options={{
-                    title: {
-                        display: true,
-                        text: 'Average Rainfall per month',
-                        fontSize: 20
-                    },
-                    legend: {
-                        display: true,
-                        position: 'right'
-                    }
+                    responsive: true,
+                    maintainAspectRatio: true,
                 }}
             />
-        </>
+        </div>
     )
 }
 
-export default QuaterlyGraph
+export default React.memo(QuaterlyGraph);

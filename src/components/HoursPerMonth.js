@@ -11,30 +11,20 @@ function HoursPerMonth({ data }) {
                 backgroundColor: 'rgba(75,192,192,1)',
                 borderColor: 'rgba(0,0,0,1)',
                 borderWidth: 2,
-                data: data //[4, 11, 22, 11, 7, 1, 2, 8, 15, 6, 7, 5]
+                data: data
             }
         ]
     }
     return (
-        <div>
-            <Bar data={state}
-                height={1500}
-                width={400}
+        <div className='w-75 mx-auto my-4'>
+            <Bar
+                data={state}
                 options={{
-                    maintainAspectRatio: false,
-                    title: {
-                        display: true,
-                        text: 'Prediction Result',
-                        fontsize: 20,
-                    },
-
-                    legend: {
-                        display: true,
-                        position: 'right'
-                    }
-                }
-                } />
+                    responsive: true,
+                    maintainAspectRatio: true,
+                }}
+            />
         </div>
     )
 }
-export default HoursPerMonth
+export default React.memo(HoursPerMonth)
