@@ -1,8 +1,10 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 const Unzipper = require('adm-zip')
 const Store = require('electron-store');
+const base64url = require('base64url');
 
 const isDev = process.env.NODE_ENV === "development";
 const schema = {
@@ -227,13 +229,49 @@ function getImageList(currentPath) {
     workingDir.path = currentPath;
     workingDir.imageList = fs.readdirSync(currentPath);
   }
-  return workingDir.imageList;
+  return workingDir.imageList.map((image) => `${currentPath}/${image}`);
 }
 
 ipcMain.handle("get-uploaded-images", (event, start, length = 6) => {
   const imagesList = getImageList(store.get('currentRegionPath'));
-  const images = imagesList.slice(start, start + length).map((image) => `file://${store.get('currentRegionPath')}/${image}`);
+  const images = imagesList.slice(start, start + length).map((image) => `file://${image}`);
   const count = start + images.length;
   const over = imagesList.length === count;
   return { images: images, count: count, over: over };
+});
+
+// function to encode file data to base64 encoded string
+function base64_encode(files) {
+  const base64 = Array();
+  for (let file of files) {
+    base64.push([base64url.fromBase64(fs.readFileSync(file, 'base64'))]);
+  }
+  return base64;
+}
+
+ipcMain.on("start-processing", (event) => {
+  console.log(store.get('currentRegionPath'));
+  let imageList = getImageList(store.get('currentRegionPath'));
+  let encodeImages = base64_encode(imageList);
+  // console.log(imageList);
+  data = {
+    "signature_name": "serving_default",
+    "instances": encodeImages
+  }
+  axios.post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
+    headers: { "content-type": "application/json" }
+  }).then((res) => {
+    let result = res.data.predictions.map((prediction) => {
+      if (prediction[0] >= 0.5) {
+        return 'clear'
+      } else {
+        return 'unclear'
+      }
+    })
+    result = imageList.map((img, index) => [img, result[index]])
+    console.log(result)
+    event.sender.send('received-result', result);
+  }).catch((err) => {
+    console.log(err);
+  });
 });

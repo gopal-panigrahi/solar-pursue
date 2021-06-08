@@ -12,7 +12,6 @@ const schema = yup.object().shape({
 });
 
 function RegionInfoForm() {
-    console.log("Logging");
     const history = useHistory();
     async function handleUploadZip(event) {
         event.preventDefault();

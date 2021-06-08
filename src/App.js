@@ -4,6 +4,7 @@ import Header from './components/Header.jsx';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import ImageProcessing from './pages/ImageProcessing.jsx'
 import Home from './pages/Home.jsx';
+import Result from './components/Result.jsx';
 function App() {
   useEffect(() => {
     if (!window.api.checkBasePath()) {
@@ -14,15 +15,16 @@ function App() {
   }, [])
   return (
     <>
-      <HashRouter>
+      {/* <HashRouter>
         <Header />
         <Switch className="m-0 p-0">
           <Route exact path="/" component={Home} />
           <Route path="/home" component={Home} />
           <Route path="/uploadPage" component={ImageProcessing} />
-          {/* <Route path="/result" component={Result} /> */}
+          <Route path="/result" component={Result} /> }
         </Switch>
-      </HashRouter>
+      </HashRouter> */}
+      <Result />
     </>
   );
 }

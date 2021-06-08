@@ -88,3 +88,5 @@ typings/
 # Electron-Forge
 out/
 test_build.sh
+venv/
+.vscode/
