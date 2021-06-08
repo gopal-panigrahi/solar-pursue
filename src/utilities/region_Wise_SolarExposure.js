@@ -1,5 +1,5 @@
 import { Bar } from 'react-chartjs-2';
-import * as React from 'react';
+import React from 'react';
 
 const state = {
 	labels: [

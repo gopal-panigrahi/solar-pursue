@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Row, Image, Col, Button } from "react-bootstrap";
 
-const Uploadpage = () => {
+const ImagePage = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
-  const [count, setCount] = useState(0);
-  const [noMoreImages, setNoMoreImages] = useState(false)
   const history = useHistory();
 
   useEffect(() => {
@@ -22,19 +20,11 @@ const Uploadpage = () => {
   }, []);
   useEffect(async () => {
     if (loading === false) {
-      const response = await window.api.getUploadedImages(count);
-      setCount(response.count);
+      const response = await window.api.getUploadedImages();
       setImages(response.images);
-      setNoMoreImages(response.over);
     }
   }, [loading]);
 
-  const getMoreImages = async () => {
-    const response = await window.api.getUploadedImages(count);
-    setImages(response.images);
-    setCount(response.count);
-    setNoMoreImages(response.over);
-  }
   const startProcessing = () => {
     window.api.startProcessing();
     history.push('/resultPage');
@@ -50,11 +40,9 @@ const Uploadpage = () => {
           (
             <>
               <Row className="p-0 m-0 mx-auto" xl>
-                <Col className="p-0 m-0 m-auto" md={1}><Button>Prev</Button> </Col>
                 <Col className="">
                   {imageCollection}
                 </Col>
-                <Col className="p-0 m-0 m-auto" md={1}><Button onClick={getMoreImages} disabled={noMoreImages}>Next</Button></Col>
               </Row>
               <Row><Button onClick={startProcessing}>Start Processing</Button></Row>
             </>
@@ -64,4 +52,4 @@ const Uploadpage = () => {
   );
 };
 
-export default Uploadpage;
+export default ImagePage;

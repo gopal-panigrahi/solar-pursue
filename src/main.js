@@ -232,12 +232,9 @@ function getImageList(currentPath) {
   return workingDir.imageList.map((image) => `${currentPath}/${image}`);
 }
 
-ipcMain.handle("get-uploaded-images", (event, start, length = 6) => {
-  const imagesList = getImageList(store.get('currentRegionPath'));
-  const images = imagesList.slice(start, start + length).map((image) => `file://${image}`);
-  const count = start + images.length;
-  const over = imagesList.length === count;
-  return { images: images, count: count, over: over };
+ipcMain.handle("get-uploaded-images", (event) => {
+  const imageList = getImageList(store.get('currentRegionPath')).map((image) => `file://${image}`);
+  return { images: imageList };
 });
 
 // function to encode file data to base64 encoded string

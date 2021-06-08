@@ -4,7 +4,9 @@ import Header from './components/Header.jsx';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import ImageProcessing from './pages/ImageProcessing.jsx'
 import Home from './pages/Home.jsx';
-import Result from './components/Result.jsx';
+import Result from './pages/Result.jsx';
+import StatisticalReport from './pages/StatisticalReport.jsx';
+// import SideNav from './components/SideNav';
 function App() {
   useEffect(() => {
     if (!window.api.checkBasePath()) {
@@ -24,7 +26,12 @@ function App() {
           <Route path="/result" component={Result} /> }
         </Switch>
       </HashRouter> */}
-      <Result />
+      {/* <Result /> */}
+      {/* <HoursPerDay /> */}
+      {/* <HoursPerMonth /> */}
+      {/* <QuaterlyGraph /> */}
+      {/* <StatisticalReport /> */}
+      <ImageProcessing />
     </>
   );
 }
