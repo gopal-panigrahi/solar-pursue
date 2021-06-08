@@ -233,7 +233,8 @@ function getImageList(currentPath) {
 }
 
 ipcMain.handle("get-uploaded-images", (event) => {
-  const imageList = getImageList(store.get('currentRegionPath')).map((image) => `file://${image}`);
+  let imageList = getImageList(store.get('currentRegionPath'));
+  imageList = imageList.map((img, index) => ({ 'imagePath': `file://${img}`, 'label': 'not-predicted' }))
   return { images: imageList };
 });
 
@@ -247,10 +248,10 @@ function base64_encode(files) {
 }
 
 ipcMain.on("start-processing", (event) => {
-  console.log(store.get('currentRegionPath'));
+  // console.log(store.get('currentRegionPath'));
   let imageList = getImageList(store.get('currentRegionPath'));
   let encodeImages = base64_encode(imageList);
-  // console.log(imageList);
+
   data = {
     "signature_name": "serving_default",
     "instances": encodeImages
@@ -265,8 +266,7 @@ ipcMain.on("start-processing", (event) => {
         return 'unclear'
       }
     })
-    result = imageList.map((img, index) => [img, result[index]])
-    console.log(result)
+    result = imageList.map((img, index) => ({ 'imagePath': `file://${img}`, 'label': result[index] }))
     event.sender.send('received-result', result);
   }).catch((err) => {
     console.log(err);

@@ -1,16 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import graphGenerator from '../utilities/day_time'
 import HoursPerDay from '../components/HoursPerDay';
 import HoursPerMonth from '../components/HoursPerMonth';
 import QuaterlyGraph from '../components/QuaterlyGraph';
 
 
-function StatisticalReport({ result }) {
+function StatisticalReport({ resultPresent, result }) {
     const [loading, setLoading] = useState(true);
-    graphGenerator.evaluate(result);
-    const hoursPerDay = graphGenerator.hoursPerDay();
-    const hoursPerMonth = graphGenerator.hoursPerMonth();
-    const quaterly = graphGenerator.quaterly();
+    const [hoursPerDay, setHoursPerDay] = useState(null);
+    const [hoursPerMonth, setHoursPerMonth] = useState(null);
+    const [quaterly, setQuaterly] = useState(null);
+
+
+    useEffect(() => {
+        if (resultPresent) {
+            graphGenerator.evaluate(result);
+            setHoursPerDay(graphGenerator.hoursPerDay());
+            setHoursPerMonth(graphGenerator.hoursPerMonth());
+            setQuaterly(graphGenerator.quaterly());
+            setLoading(false);
+        }
+    }, [resultPresent, result])
+
     return (
         <>{
             loading ?

@@ -32,7 +32,7 @@ function RegionInfoForm() {
 
     function handleSubmit(values) {
         window.api.setRegionInfo(values);
-        history.push("/uploadPage");
+        history.push("/processImage");
     }
 
     return (
