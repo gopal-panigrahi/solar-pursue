@@ -55,6 +55,24 @@ const createWindow = () => {
   mainWindow.maximize();
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  ipcMain.on('print-pdf', () => {
+    mainWindow.webContents.printToPDF({}).then((data) => {
+      const regionData = store.get('region_info');
+      const defaultPath = path.join(store.get('currentRegionPath'), `${regionData.village}_${regionData.pincode}_result.pdf`)
+      const pdfPath = dialog.showSaveDialogSync({
+        title: 'save pdf',
+        defaultPath: defaultPath,
+        properties: ['createDirectory', 'showOverwriteConfirmation']
+      });
+      fs.writeFile(pdfPath, data, (error) => {
+        if (error) console.log(error)
+      })
+    }).catch((err) => {
+      console.log(err);
+    });
+  });
+
 };
 
 // This method will be called when Electron has finished
@@ -248,7 +266,6 @@ function base64_encode(files) {
 }
 
 ipcMain.on("start-processing", (event) => {
-  // console.log(store.get('currentRegionPath'));
   let imageList = getImageList(store.get('currentRegionPath'));
   let encodeImages = base64_encode(imageList);
 

@@ -25,6 +25,7 @@ function App() {
         </Switch>
       </HashRouter> */}
       <StatisticalReport />
+      {/* <ImageProcessing /> */}
     </>
   );
 }

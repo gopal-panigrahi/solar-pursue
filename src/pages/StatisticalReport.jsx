@@ -5,6 +5,7 @@ import HoursPerMonth from '../components/HoursPerMonth.js';
 import QuaterlyGraph from '../components/QuaterlyGraph.js';
 import { Container, Form, Card, Button } from 'react-bootstrap';
 import { AiTwotoneEdit } from 'react-icons/ai';
+import LoadingPage from '../components/Loading.jsx';
 
 function StatisticalReport({ resultPresent, result }) {
     const [loading, setLoading] = useState(true);
@@ -25,12 +26,16 @@ function StatisticalReport({ resultPresent, result }) {
         setQuaterly(graphGenerator.quaterly());
         setLoading(false);
         // }
-    }, [resultPresent, result])
+    }, [resultPresent, result]);
+
+    const printToPdf = () => {
+        window.api.print();
+    };
 
     return (
         <>{
             loading ?
-                <h1>Loading</h1>
+                <LoadingPage />
                 :
                 <>
                     <Container>
@@ -48,7 +53,7 @@ function StatisticalReport({ resultPresent, result }) {
                                 <AiTwotoneEdit className='float-right m-1' size='1.5em' onClick={() => setDisableQuaterlyComment(!disableQuaterlyComment)} />
                                 <Form.Control as="textarea" rows={5} disabled={disableQuaterlyComment} placeholder='Click on Edit Icon to Add Comments' />
                                 <div className='d-flex justify-content-center'>
-                                    <Button className="my-3">Print</Button>
+                                    <Button className="my-3" onClick={printToPdf}>Print</Button>
                                 </div>
                             </Card.Body>
                         </Card>

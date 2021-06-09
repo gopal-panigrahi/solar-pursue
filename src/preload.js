@@ -19,7 +19,8 @@ contextBridge.exposeInMainWorld(
     readyForProcessing: () => store.get("readyForProcessing"),
     getUploadedImages: async (count) => ipcRenderer.invoke("get-uploaded-images", count),
     startProcessing: () => ipcRenderer.send("start-processing"),
-    getResult: (callback) => resultCallback = callback
+    getResult: (callback) => resultCallback = callback,
+    print: () => ipcRenderer.send('print-pdf')
 });
 
 ipcRenderer.on('received-result', (event, result) => resultCallback(result))
