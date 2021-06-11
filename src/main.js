@@ -5,7 +5,8 @@ const axios = require('axios');
 const Unzipper = require('adm-zip')
 const Store = require('electron-store');
 const base64url = require('base64url');
-
+import { readdir } from 'fs/promises';
+// import requestToServing from './utilities/requestToServing.js';
 const isDev = process.env.NODE_ENV === "development";
 const schema = {
   isBasePathSet: {
@@ -40,11 +41,11 @@ const createWindow = () => {
   /*
     Used while testing base path functionality
   */
-  // store.set("isBasePathSet", false);
-  // console.log(store.get("basePath"));
   const mainWindow = new BrowserWindow({
     webPreferences: {
       // devTools: isDev,
+      // nodeIntegrationInWorker: true,
+      sandbox: false,
       nodeIntegration: false, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
       enableRemoteModule: false, // turn off remote
@@ -117,6 +118,8 @@ function setUpTempDirectory() {
 }
 
 ipcMain.on("set-base-path", () => {
+  // store.set("basePath", '/home/others/Workspace/BaseProjectFolder');
+  // store.set("isBasePathSet", true);
   setUpTempDirectory();
   const selectionId = dialog.showMessageBoxSync({
     message: "Set the Base Path",
@@ -167,19 +170,18 @@ ipcMain.handle("upload-zip", async (event) => {
   return { "message": "Unzip Successful", "status": unzipped };
 });
 
-ipcMain.handle("upload-folder", async (event) => {
-  let uploadFolderDone = false;
+ipcMain.on("upload-folder", async (event) => {
   setUpTempDirectory();
 
   const files = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
   });
   if (files.canceled) {
-    uploadFolderDone = false;
+    event.sender.send('images-uploaded', { status: false });
   }
   else {
     for (let file_path of files.filePaths) {
-      fs.readdir(file_path, (err, files) => {
+      readdir(file_path).then((files) => {
         files.forEach(file => {
           if (['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'].includes(path.extname(file))) {
             const source = path.join(file_path, file);
@@ -188,12 +190,14 @@ ipcMain.handle("upload-folder", async (event) => {
               if (err) throw err;
             });
           }
-        });
-      });
+        })
+      }).then(() => {
+        event.sender.send('images-uploaded', { status: true });
+      }).catch((err) => {
+        console.log('err in upload')
+      });;
     }
-    uploadFolderDone = true;
   }
-  return { "message": "Folder Copied Successfully", "status": uploadFolderDone };
 });
 
 function moveToRegion(source, destination, callback) {
@@ -265,27 +269,60 @@ function base64_encode(files) {
   return base64;
 }
 
-ipcMain.on("start-processing", (event) => {
-  let imageList = getImageList(store.get('currentRegionPath'));
-  let encodeImages = base64_encode(imageList);
-
-  data = {
-    "signature_name": "serving_default",
-    "instances": encodeImages
-  }
-  axios.post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
+async function getPredictions(data) {
+  const res = await axios.post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
     headers: { "content-type": "application/json" }
-  }).then((res) => {
-    let result = res.data.predictions.map((prediction) => {
+  });
+  return res.data.predictions;
+}
+
+function batchPredict(encodedImages) {
+  let result = []
+  const chunk = 20;
+  const data = {
+    "signature_name": "serving_default",
+    "instances": encodedImages.slice(0, chunk)
+  }
+  let chain = getPredictions(data);
+  for (let i = 10; i < encodedImages.length; i += chunk) {
+    const data = {
+      "signature_name": "serving_default",
+      "instances": encodedImages.slice(i, i + chunk)
+    }
+    chain = chain.then((res) => {
+      result = result.concat(res);
+      console.log(i);
+      return getPredictions(data);
+    }).catch((err) => { console.log(err) });
+  }
+  return chain.then((res) => { result = result.concat(res); console.log("over"); return result; }).catch((err) => { console.log(err) });
+}
+
+ipcMain.on("start-processing", (event) => {
+
+  const imageList = getImageList(store.get('currentRegionPath'));
+  const encodedImages = base64_encode(imageList);
+
+  // process.dlopen = () => {
+  //   throw new Error('Load native module is not safe')
+  // }
+  // const worker = new Worker('./utilities/requestToServing');
+  // worker.postMessage(encodedImages);
+  // worker.onmessage = function (e) {
+  //   console.log(e.data);
+  // }
+  //requestToServing.batchPredict(encodedImages).then((result) => { console.log(result) }).catch((err) => { console.log(err) });
+
+  batchPredict(encodedImages).then((result) => {
+    result = result.map((prediction) => {
       if (prediction[0] >= 0.5) {
         return 'clear'
       } else {
         return 'unclear'
       }
-    })
+    });
     result = imageList.map((img, index) => ({ 'imagePath': `file://${img}`, 'label': result[index] }))
+    // console.log(result);
     event.sender.send('received-result', result);
-  }).catch((err) => {
-    console.log(err);
-  });
+  }).catch((err) => { console.log(err) });
 });

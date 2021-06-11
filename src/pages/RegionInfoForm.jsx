@@ -1,6 +1,6 @@
 import { Field, Formik, ErrorMessage, Form } from 'formik';
 import { useHistory } from 'react-router-dom';
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Button, Form as RForm } from 'react-bootstrap';
 
@@ -13,8 +13,11 @@ const schema = yup.object().shape({
 
 function RegionInfoForm() {
     const history = useHistory();
+    const [uploading, setUploading] = useState(false)
+
     async function handleUploadZip(event) {
         event.preventDefault();
+        setUploading(true);
         const response = await window.api.uploadZipFile();
         if (!response.status) {
             alert("Uploading Files Cancelled");
@@ -23,10 +26,14 @@ function RegionInfoForm() {
 
     async function handleUploadFolder(event) {
         event.preventDefault();
-        const response = await window.api.uploadFolder();
-        if (!response.status) {
-            alert("Uploading Folder Cancelled");
-        }
+        setUploading(true);
+        window.api.uploadFolder((status) => {
+            if (!status) {
+                alert("Uploading Folder Cancelled");
+            } else {
+                setUploading(false);
+            }
+        });
 
     }
 
@@ -73,7 +80,13 @@ function RegionInfoForm() {
                     <Button className="mx-auto" onClick={handleUploadFolder}>Upload Folder</Button>
                 </RForm.Row>
                 <RForm.Row>
-                    <Button className="mx-auto" type="submit">Submit</Button>
+                    <Button className="mx-auto" type="submit" disabled={uploading}>
+                        {uploading ?
+                            "...Uploading"
+                            :
+                            "Submit"
+                        }
+                    </Button>
                 </RForm.Row>
             </Form>
         </Formik>

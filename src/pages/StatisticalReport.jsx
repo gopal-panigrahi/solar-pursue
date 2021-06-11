@@ -12,21 +12,26 @@ function StatisticalReport({ resultPresent, result }) {
     const [hoursPerDay, setHoursPerDay] = useState(null);
     const [hoursPerMonth, setHoursPerMonth] = useState(null);
     const [quaterly, setQuaterly] = useState(null);
+    const [regionInfo, setRegionInfo] = useState(null)
 
     const [disableQuaterlyComment, setDisableQuaterlyComment] = useState(true)
     const [disableMonthComment, setDisableMonthComment] = useState(true)
     const [disableDayComment, setDisableDayComment] = useState(true)
 
     useEffect(() => {
-        // if (resultPresent) {
-        result = [{ imagePath: 'file:///home/others/Workspace/BaseProjectFolder/kalyan_000000/20120707_141149.jpg', label: 'clear' }]
-        graphGenerator.evaluate(result);
-        setHoursPerDay(graphGenerator.hoursPerDay());
-        setHoursPerMonth(graphGenerator.hoursPerMonth());
-        setQuaterly(graphGenerator.quaterly());
-        setLoading(false);
-        // }
+        if (resultPresent) {
+            // result = [{ imagePath: 'file:///home/others/Workspace/BaseProjectFolder/kalyan_000000/20120707_141149.jpg', label: 'clear' }]
+            graphGenerator.evaluate(result);
+            setHoursPerDay(graphGenerator.hoursPerDay());
+            setHoursPerMonth(graphGenerator.hoursPerMonth());
+            setQuaterly(graphGenerator.quaterly());
+            setLoading(false);
+        }
     }, [resultPresent, result]);
+
+    useEffect(() => {
+        setRegionInfo(window.api.getRegionInfo());
+    }, [])
 
     const printToPdf = () => {
         window.api.print();
@@ -34,7 +39,7 @@ function StatisticalReport({ resultPresent, result }) {
 
     return (
         <>{
-            loading ?
+            loading || !regionInfo ?
                 <LoadingPage />
                 :
                 <>
@@ -42,7 +47,7 @@ function StatisticalReport({ resultPresent, result }) {
                         <Card>
                             <Card.Body>
                                 <Card.Title className="text-center">Solar Report</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted text-center">This report contains details of the region kalyan</Card.Subtitle>
+                                <Card.Subtitle className="mb-2 text-muted text-center">This report contains details of the region {regionInfo.village}, Pincode : {regionInfo.pincode}</Card.Subtitle>
                                 <HoursPerDay labels={hoursPerDay.labels} data={hoursPerDay.data} />
                                 <AiTwotoneEdit className='float-right m-1' size='1.5em' onClick={() => setDisableDayComment(!disableDayComment)} />
                                 <Form.Control as="textarea" rows={5} disabled={disableDayComment} placeholder='Click on Edit Icon to Add Comments' />
