@@ -17,7 +17,7 @@ function HoursPerDay({ labels, data }) {
         ]
     }
     return (
-        <div className='w-75 mx-auto my-4'>
+        <div className='w-75 mx-auto my-3 p-4'>
             <Line
                 data={state}
                 options={{

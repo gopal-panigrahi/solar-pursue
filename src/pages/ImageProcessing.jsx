@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Container, Card, Row, Button, Image } from 'react-bootstrap';
+import { Container, Card, Row, Button, Image, Col } from 'react-bootstrap';
 import LoadingPage from '../components/Loading.jsx';
 import StatisticalReport from './StatisticalReport.jsx';
 
@@ -65,20 +65,31 @@ function ImageProcessing() {
                 <StatisticalReport resultPresent={resultPresent} result={images} />
                 :
                 (
-                    loading ?
+                    loading || (images.length == 0) ?
                         <LoadingPage />
                         :
                         <Container fluid>
-                            <h2 className="text-center mt-1 text-primary">Images</h2>
-                            <Row className="mx-4 mb-2" style={{ maxHeight: '75vh', overflowY: 'auto', border: '5px inset cyan' }} >
-                                {imageCollection}
+                            <h2 className="text-center mt-1 text-light">Images</h2>
+                            <Row xs={1} md={2} lg={3} className="g-4 mx-4 mb-2" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+                                {Array.from({ length: images.length }).map((_, idx) => (
+                                    <Col className='mx-auto m-3'>
+                                        <Card key={idx} className="h-100" style={{ width: '23rem' }}>
+                                            <Card.Img src={images[idx].imagePath} />
+                                            <Card.Body>
+                                                <Card.Text className="text-center">
+                                                    {images[idx].label}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+                                ))}
                             </Row>
                             <Row className="d-flex justify-content-center p-2">
                                 {
                                     resultPresent ?
-                                        <Button onClick={generateReport}> Generate Report </Button>
+                                        <Button className="btn-success" onClick={generateReport}> Generate Report </Button>
                                         :
-                                        <Button onClick={startProcessing} disabled={disableButton}>Start Processing</Button>
+                                        <Button className="btn-success" onClick={startProcessing} disabled={disableButton}>Start Processing</Button>
                                 }
                             </Row>
                         </Container >

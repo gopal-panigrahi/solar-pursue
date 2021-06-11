@@ -31,7 +31,7 @@ function QuaterlyGraph({ data }) {
         ]
     }
     return (
-        <div className='w-50 mx-auto my-4'>
+        <div className='w-50 mx-auto my-3 p-4'>
             <Doughnut
                 data={state}
                 options={{

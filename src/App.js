@@ -4,6 +4,8 @@ import Header from './components/Header.jsx';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import ImageProcessing from './pages/ImageProcessing.jsx'
 import Home from './pages/Home.jsx';
+import { Container, Row } from 'react-bootstrap';
+import StatisticalReport from './pages/StatisticalReport.jsx';
 
 function App() {
   useEffect(() => {
@@ -16,15 +18,18 @@ function App() {
 
   return (
     <>
-      <HashRouter>
+      <div className='cover-body'>
         <Header />
-        <Switch className="m-0 p-0">
-          <Route exact path="/" component={Home} />
-          <Route path="/home" component={Home} />
-          <Route path="/processImage" component={ImageProcessing} />
-        </Switch>
-      </HashRouter>
-      {/* <ImageProcessing /> */}
+        {/* <HashRouter>
+          <Switch className="m-0 p-0">
+            <Route exact path="/" component={Home} />
+            <Route path="/home" component={Home} />
+            <Route path="/processImage" component={ImageProcessing} />
+          </Switch>
+        </HashRouter> */}
+        {/* <ImageProcessing /> */}
+        <StatisticalReport />
+      </div>
     </>
   );
 }
