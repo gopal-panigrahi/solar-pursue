@@ -22,7 +22,8 @@
     "forge": {
       "packagerConfig": {
         "name": "solar-pursue",
-        "icon": "./src/assets/sun.ico"
+        "icon": "./src/assets/sun.ico",
+        "extraResource": "./src/utilities/requestToServing.js"
       },
       "makers": [
         {

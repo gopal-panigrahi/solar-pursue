@@ -7,6 +7,7 @@ import Home from './pages/Home.jsx';
 import { Container, Row } from 'react-bootstrap';
 import StatisticalReport from './pages/StatisticalReport.jsx';
 import LoadingPage from './components/Loading.jsx';
+import Imageupload from './pages/Imageupload.js';
 
 function App() {
   useEffect(() => {
@@ -26,11 +27,13 @@ function App() {
             <Route exact path="/" component={Home} />
             <Route path="/home" component={Home} />
             <Route path="/processImage" component={ImageProcessing} />
+            <Route path="/singleImage" component={Imageupload} />
           </Switch>
         </HashRouter>
         {/* <ImageProcessing /> */}
         {/* <StatisticalReport /> */}
         {/* <LoadingPage /> */}
+        <Imageupload />
       </div>
     </>
   );

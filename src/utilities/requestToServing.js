@@ -53,3 +53,5 @@ batchPredict(workerData).then((result) => {
 }).then((predictions) => {
 	parentPort.postMessage(predictions)
 }).catch((err) => console.log(err));
+
+

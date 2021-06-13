@@ -4,9 +4,7 @@ const fs = require('fs');
 const Store = require('electron-store');
 import { readdir } from 'fs/promises';
 const { Worker } = require('worker_threads');
-const { fromBase64 } = require('base64url');
-const { post } = require("axios")
-// import requestToServing from './utilities/requestToServing.js';
+
 
 const isDev = process.env.NODE_ENV === "development";
 const schema = {
@@ -45,7 +43,7 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
       // devTools: isDev,
-      // nodeIntegrationInWorker: true,
+      nodeIntegrationInWorker: true,
       sandbox: false,
       nodeIntegration: false, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
@@ -176,6 +174,7 @@ ipcMain.on("upload-folder", async (event) => {
   setUpTempDirectory();
 
   const files = await dialog.showOpenDialog({
+    defaultPath: "/home/others/Workspace/sampleImages",
     properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
   });
   if (files.canceled) {
@@ -262,75 +261,28 @@ ipcMain.handle("get-uploaded-images", (event) => {
   return { images: imageList };
 });
 
-
-function base64_encode(files) {
-  const base64 = Array();
-  for (let file of files) {
-    base64.push([fromBase64(fs.readFileSync(file, 'base64'))]);
-  }
-  return base64;
-}
-
-async function getPredictions(data) {
-  const res = await post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
-    headers: { "content-type": "application/json" }
-  });
-  return res.data.predictions;
-}
-
-function batchPredict(encodedImages) {
-  let result = []
-  const chunk = 20;
-  const data = {
-    "signature_name": "serving_default",
-    "instances": encodedImages.slice(0, chunk)
-  }
-  let chain = getPredictions(data);
-  for (let i = chunk; i < encodedImages.length; i += chunk) {
-    const data = {
-      "signature_name": "serving_default",
-      "instances": encodedImages.slice(i, i + chunk)
+function runService(workerData) {
+  return new Promise((resolve, reject) => {
+    let workerPath;
+    if (isDev) {
+      workerPath = "./src/utilities/requestToServing.js";
+    } else {
+      workerPath = path.join(process.resourcesPath, 'requestToServing.js');
     }
-    chain = chain.then((res) => {
-      result = result.concat(res);
-      console.log(i);
-      return getPredictions(data);
-    }).catch((err) => { console.log(err) });
-  }
-  return chain.then((res) => { result = result.concat(res); console.log("over"); return result; }).catch((err) => { console.log(err) });
+    const worker = new Worker(workerPath, { workerData });
+    worker.on('message', resolve);
+    worker.on('error', reject);
+    worker.on('exit', (code) => {
+      if (code !== 0)
+        reject(new Error(
+          `Stopped the Worker Thread with the exit code: ${code}`));
+    })
+  })
 }
-
-// function runService(workerData) {
-//   return new Promise((resolve, reject) => {
-//     const worker = new Worker(MAIN_WINDOW_WOKRER_WEBPACK_ENTRY, { workerData });
-//     worker.on('message', resolve);
-//     worker.on('error', reject);
-//     worker.on('exit', (code) => {
-//       if (code !== 0)
-//         reject(new Error(
-//           `Stopped the Worker Thread with the exit code: ${code}`));
-//     })
-//   })
-// }
 
 ipcMain.on("start-processing", (event) => {
   const imageList = getImageList(store.get('currentRegionPath'));
-  const encodedImages = base64_encode(imageList);
-  // runService(imageList).then((result) => {
-  //   event.sender.send('received-result', result);
-  // }).catch(err => console.error(err))
-
-
-  batchPredict(encodedImages).then((result) => {
-    result = result.map((prediction) => {
-      if (prediction[0] >= 0.5) {
-        return 'clear'
-      } else {
-        return 'unclear'
-      }
-    });
-    result = imageList.map((img, index) => ({ 'imagePath': `file://${img}`, 'label': result[index] }))
-    // console.log(result);
+  runService(imageList).then((result) => {
     event.sender.send('received-result', result);
-  }).catch((err) => { console.log(err) });
+  }).catch(err => console.error(err))
 });
