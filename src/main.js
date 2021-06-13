@@ -1,12 +1,13 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const axios = require('axios');
-const Unzipper = require('adm-zip')
 const Store = require('electron-store');
-const base64url = require('base64url');
 import { readdir } from 'fs/promises';
+const { Worker } = require('worker_threads');
+const { fromBase64 } = require('base64url');
+const { post } = require("axios")
 // import requestToServing from './utilities/requestToServing.js';
+
 const isDev = process.env.NODE_ENV === "development";
 const schema = {
   isBasePathSet: {
@@ -150,6 +151,7 @@ ipcMain.on("set-base-path", () => {
 });
 
 ipcMain.handle("upload-zip", async (event) => {
+  const Unzipper = require('adm-zip');
   let unzipped = false;
 
   const files = await dialog.showOpenDialog({
@@ -260,17 +262,17 @@ ipcMain.handle("get-uploaded-images", (event) => {
   return { images: imageList };
 });
 
-// function to encode file data to base64 encoded string
+
 function base64_encode(files) {
   const base64 = Array();
   for (let file of files) {
-    base64.push([base64url.fromBase64(fs.readFileSync(file, 'base64'))]);
+    base64.push([fromBase64(fs.readFileSync(file, 'base64'))]);
   }
   return base64;
 }
 
 async function getPredictions(data) {
-  const res = await axios.post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
+  const res = await post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
     headers: { "content-type": "application/json" }
   });
   return res.data.predictions;
@@ -284,7 +286,7 @@ function batchPredict(encodedImages) {
     "instances": encodedImages.slice(0, chunk)
   }
   let chain = getPredictions(data);
-  for (let i = 10; i < encodedImages.length; i += chunk) {
+  for (let i = chunk; i < encodedImages.length; i += chunk) {
     const data = {
       "signature_name": "serving_default",
       "instances": encodedImages.slice(i, i + chunk)
@@ -298,20 +300,26 @@ function batchPredict(encodedImages) {
   return chain.then((res) => { result = result.concat(res); console.log("over"); return result; }).catch((err) => { console.log(err) });
 }
 
-ipcMain.on("start-processing", (event) => {
+// function runService(workerData) {
+//   return new Promise((resolve, reject) => {
+//     const worker = new Worker(MAIN_WINDOW_WOKRER_WEBPACK_ENTRY, { workerData });
+//     worker.on('message', resolve);
+//     worker.on('error', reject);
+//     worker.on('exit', (code) => {
+//       if (code !== 0)
+//         reject(new Error(
+//           `Stopped the Worker Thread with the exit code: ${code}`));
+//     })
+//   })
+// }
 
+ipcMain.on("start-processing", (event) => {
   const imageList = getImageList(store.get('currentRegionPath'));
   const encodedImages = base64_encode(imageList);
+  // runService(imageList).then((result) => {
+  //   event.sender.send('received-result', result);
+  // }).catch(err => console.error(err))
 
-  // process.dlopen = () => {
-  //   throw new Error('Load native module is not safe')
-  // }
-  // const worker = new Worker('./utilities/requestToServing');
-  // worker.postMessage(encodedImages);
-  // worker.onmessage = function (e) {
-  //   console.log(e.data);
-  // }
-  //requestToServing.batchPredict(encodedImages).then((result) => { console.log(result) }).catch((err) => { console.log(err) });
 
   batchPredict(encodedImages).then((result) => {
     result = result.map((prediction) => {

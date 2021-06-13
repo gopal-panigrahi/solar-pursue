@@ -6,6 +6,7 @@ import ImageProcessing from './pages/ImageProcessing.jsx'
 import Home from './pages/Home.jsx';
 import { Container, Row } from 'react-bootstrap';
 import StatisticalReport from './pages/StatisticalReport.jsx';
+import LoadingPage from './components/Loading.jsx';
 
 function App() {
   useEffect(() => {
@@ -20,15 +21,16 @@ function App() {
     <>
       <div className='cover-body'>
         <Header />
-        {/* <HashRouter>
+        <HashRouter>
           <Switch className="m-0 p-0">
             <Route exact path="/" component={Home} />
             <Route path="/home" component={Home} />
             <Route path="/processImage" component={ImageProcessing} />
           </Switch>
-        </HashRouter> */}
+        </HashRouter>
         {/* <ImageProcessing /> */}
-        <StatisticalReport />
+        {/* <StatisticalReport /> */}
+        {/* <LoadingPage /> */}
       </div>
     </>
   );

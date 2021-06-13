@@ -19,14 +19,14 @@ function StatisticalReport({ resultPresent, result }) {
     const [disableDayComment, setDisableDayComment] = useState(true)
 
     useEffect(() => {
-        // if (resultPresent) {
-        result = [{ imagePath: 'file:///home/others/Workspace/BaseProjectFolder/kalyan_000000/20120707_141149.jpg', label: 'clear' }]
-        graphGenerator.evaluate(result);
-        setHoursPerDay(graphGenerator.hoursPerDay());
-        setHoursPerMonth(graphGenerator.hoursPerMonth());
-        setQuaterly(graphGenerator.quaterly());
-        setLoading(false);
-        // }
+        if (resultPresent) {
+            // result = [{ imagePath: 'file:///home/others/Workspace/BaseProjectFolder/kalyan_000000/20120707_141149.jpg', label: 'clear' }]
+            graphGenerator.evaluate(result);
+            setHoursPerDay(graphGenerator.hoursPerDay());
+            setHoursPerMonth(graphGenerator.hoursPerMonth());
+            setQuaterly(graphGenerator.quaterly());
+            setLoading(false);
+        }
     }, [resultPresent, result]);
 
     useEffect(() => {
