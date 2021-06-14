@@ -19,7 +19,7 @@ function Header() {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto">
                         <Nav.Link href="#home" className="bg-primary text-white px-3 rounded mx-2 shadow-box">Bulk</Nav.Link>
-                        <Nav.Link href="#single" className="bg-primary text-white px-3 rounded mx-2 shadow-box">Single</Nav.Link>
+                        <Nav.Link href="#singleImage" className="bg-primary text-white px-3 rounded mx-2 shadow-box">Single</Nav.Link>
                         <Nav.Link href="#about" className="bg-primary text-white px-3 rounded mx-2 shadow-box">About</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>

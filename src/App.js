@@ -33,7 +33,7 @@ function App() {
         {/* <ImageProcessing /> */}
         {/* <StatisticalReport /> */}
         {/* <LoadingPage /> */}
-        <Imageupload />
+        {/* <Imageupload /> */}
       </div>
     </>
   );

@@ -5,10 +5,10 @@ import * as yup from 'yup';
 import { Button, Form as RForm } from 'react-bootstrap';
 
 const schema = yup.object().shape({
-    state: yup.string(),
-    district: yup.string(),
-    village: yup.string(),
-    pincode: yup.string().test('len', 'Must be exactly 5 characters', val => val.length === 6)
+    state: yup.string().required('Required'),
+    district: yup.string().required('Required'),
+    village: yup.string().required('Required'),
+    pincode: yup.string().test('len', 'Must be exactly 6 characters', val => val.length === 6)
 });
 
 function RegionInfoForm() {
@@ -57,17 +57,17 @@ function RegionInfoForm() {
                 <RForm.Group controlId="validationFormik01">
                     <RForm.Label>State</RForm.Label>
                     <Field as={RForm.Control} type="text" name="state" />
-                    <ErrorMessage name="state" />
+                    <div className="text-danger"><ErrorMessage name="state" /></div>
                 </RForm.Group>
                 <RForm.Group controlId="validationFormik02">
                     <RForm.Label>District</RForm.Label>
                     <Field as={RForm.Control} type="text" name="district" />
-                    <ErrorMessage name="district" />
+                    <div className="text-danger"><ErrorMessage name="district" /></div>
                 </RForm.Group>
                 <RForm.Group controlId="validationFormik03">
                     <RForm.Label>Village</RForm.Label>
                     <Field as={RForm.Control} type="text" name="village" />
-                    <ErrorMessage name="village" />
+                    <div className="text-danger"><ErrorMessage name="village" /></div>
                 </RForm.Group>
                 <RForm.Group controlId="validationFormik04">
                     <RForm.Label>Pincode</RForm.Label>

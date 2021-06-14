@@ -2,6 +2,8 @@ const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Store = require('electron-store');
+import axios from 'axios';
+import base64url from 'base64url';
 import { readdir } from 'fs/promises';
 const { Worker } = require('worker_threads');
 
@@ -286,3 +288,21 @@ ipcMain.on("start-processing", (event) => {
     event.sender.send('received-result', result);
   }).catch(err => console.error(err))
 });
+
+ipcMain.on("classify-single", (event, image) => {
+  const data = {
+    "signature_name": "serving_default",
+    "instances": [[base64url.fromBase64(image)]]
+  }
+  axios.post('http://localhost:8501/v1/models/sky_detection/versions/2:predict', data, {
+    headers: { "content-type": "application/json" }
+  }).then((res) => {
+    let label;
+    if (res.data.predictions[0] >= 0.5) {
+      label = 'clear';
+    } else {
+      label = 'unclear';
+    }
+    event.sender.send('classify-single', label);
+  }).catch((err) => console.log(err));
+})
