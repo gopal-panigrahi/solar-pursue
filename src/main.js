@@ -9,6 +9,10 @@ const { Worker } = require('worker_threads');
 
 
 const isDev = process.env.NODE_ENV === "development";
+
+/**
+ * Specifies the schema for the electron store
+ */
 const schema = {
   isBasePathSet: {
     type: 'boolean',
@@ -30,7 +34,7 @@ const store = new Store({ schema });
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
@@ -38,26 +42,27 @@ const BASE_PATH = store.get('basePath');
 const TEMP_DIRECTORY = path.join(store.get('basePath'), '.temp')
 
 const createWindow = () => {
-  // Create the browser window.
-  /*
-    Used while testing base path functionality
-  */
+  /**
+   * Creates a browser window
+   */
   const mainWindow = new BrowserWindow({
     webPreferences: {
-      // devTools: isDev,
+      devTools: isDev,
       nodeIntegrationInWorker: true,
       sandbox: false,
-      nodeIntegration: false, // is default value after Electron v5
-      contextIsolation: true, // protect against prototype pollution
-      enableRemoteModule: false, // turn off remote
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY // use a preload script
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
     }
   });
 
   mainWindow.maximize();
-  // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
+  /**
+   * This function handles the printing and saving the statistical report in the folder.
+   */
   ipcMain.on('print-pdf', () => {
     mainWindow.webContents.printToPDF({}).then((data) => {
       const regionData = store.get('region_info');
@@ -77,14 +82,8 @@ const createWindow = () => {
 
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -92,16 +91,15 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-
+/**
+ * This function creates a temporary directory for a specified path. 
+ * It also creates parent folders is they don't exist
+ */
 function setUpTempDirectory() {
   fs.access(TEMP_DIRECTORY, (error) => {
     if (error) {
@@ -117,10 +115,11 @@ function setUpTempDirectory() {
     }
   });
 }
-
+/**
+ * This sets a Base Path for the application which is to be used for storing images 
+ * and result 
+ */
 ipcMain.on("set-base-path", () => {
-  // store.set("basePath", '/home/others/Workspace/BaseProjectFolder');
-  // store.set("isBasePathSet", true);
   setUpTempDirectory();
   const selectionId = dialog.showMessageBoxSync({
     message: "Set the Base Path",
@@ -150,6 +149,9 @@ ipcMain.on("set-base-path", () => {
   }
 });
 
+/**
+ * This function handles the copying and unzipping of the uploaded images to Base Folder.
+ */
 ipcMain.handle("upload-zip", async (event) => {
   const Unzipper = require('adm-zip');
   let unzipped = false;
@@ -172,11 +174,15 @@ ipcMain.handle("upload-zip", async (event) => {
   return { "message": "Unzip Successful", "status": unzipped };
 });
 
+/**
+ * This function handles copying the uploaded images to Base Folder
+ */
+
 ipcMain.on("upload-folder", async (event) => {
   setUpTempDirectory();
 
   const files = await dialog.showOpenDialog({
-    defaultPath: "/home/others/Workspace/sampleImages",
+    defaultPath: store.get('basePath'),
     properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
   });
   if (files.canceled) {
@@ -202,6 +208,10 @@ ipcMain.on("upload-folder", async (event) => {
     }
   }
 });
+
+/**
+ * This function is responsible for moving images from temp directory to Base Folder
+ */
 
 function moveToRegion(source, destination, callback) {
   fs.rename(source, destination, function (err) {
@@ -231,6 +241,9 @@ function moveToRegion(source, destination, callback) {
   }
 }
 
+/**
+ * This function saves the region data into the electron store and updates the current region
+ */
 ipcMain.on("region-info", (event, regionData) => {
   store.set("readyForProcessing", false);
   store.set("region_info", regionData);
@@ -248,6 +261,9 @@ ipcMain.on("region-info", (event, regionData) => {
   store.set("currentRegionPath", CURRENT_REGION_PATH);
 });
 
+/**
+ * This function gets the images from the current region directory
+ */
 const workingDir = { path: '', imageList: [] };
 function getImageList(currentPath) {
   if (workingDir.path !== currentPath) {
@@ -257,12 +273,19 @@ function getImageList(currentPath) {
   return workingDir.imageList.map((image) => `${currentPath}/${image}`);
 }
 
+/**
+ * This function returns the list of uploaded image path
+ */
 ipcMain.handle("get-uploaded-images", (event) => {
   let imageList = getImageList(store.get('currentRegionPath'));
   imageList = imageList.map((img, index) => ({ 'imagePath': `file://${img}`, 'label': 'not-predicted' }))
   return { images: imageList };
 });
 
+/**
+ * This function creates a worker thread which is responsible for requesting large amount of
+ * images to the serving.
+ */
 function runService(workerData) {
   return new Promise((resolve, reject) => {
     let workerPath;
@@ -281,7 +304,9 @@ function runService(workerData) {
     })
   })
 }
-
+/**
+ * This function starts the processing of the uploaded images.
+ */
 ipcMain.on("start-processing", (event) => {
   const imageList = getImageList(store.get('currentRegionPath'));
   runService(imageList).then((result) => {
@@ -289,6 +314,9 @@ ipcMain.on("start-processing", (event) => {
   }).catch(err => console.error(err))
 });
 
+/**
+ * This function classify a single image and gives its result
+ */
 ipcMain.on("classify-single", (event, image) => {
   const data = {
     "signature_name": "serving_default",

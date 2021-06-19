@@ -23,6 +23,7 @@ function Home() {
             <ListGroup.Item>6. Click on the Start Processing button. </ListGroup.Item>
             <ListGroup.Item>6. After processing is completed, Generate the report. </ListGroup.Item>
             <ListGroup.Item>7. Add comments to the report and take the print. </ListGroup.Item>
+            <ListGroup.Item>8. User can also use the single image page. </ListGroup.Item>
           </ListGroup>
         </Card>
       </CardGroup>
